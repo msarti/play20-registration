@@ -9,10 +9,11 @@ object ApplicationBuild extends Build {
 
     val appDependencies = Seq(
       // Add your project dependencies here,
+      "com.typesafe" %% "play-plugins-mailer" % "2.0.2"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-      // Add your own project settings here   
+      // Add your own project settings here
         organization := "it.sartimarco"
     )
 
