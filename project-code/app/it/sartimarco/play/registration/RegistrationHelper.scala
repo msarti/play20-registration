@@ -46,8 +46,8 @@ import play.api.Logger
 
 
 
-trait RegistrationHelper {
-  self: Controller with RegistrationConfig =>
+trait RegistrationHelper[U, K] {
+  self: Controller with RegistrationConfig[U, K] =>
 
 
   def onRegistrationFailed[A](form: Form[(String, Option[String], String, String)]) (implicit request: Request[A]) : PlainResult = {
@@ -71,6 +71,7 @@ trait RegistrationHelper {
         val new_key = createActivationKey(form._1, key)
         val new_account = createDisabledAccount(form._1, form._2, form._3)
         sendVerificationMail(form._1, key)
+        
         registrationSuccess(new_account.get)(request)
   }
 
