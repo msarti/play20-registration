@@ -1,0 +1,11 @@
+@(confirmation_url: String, app_name: String = "PlayProject" )
+Hello,
+
+Thanks for signing up with @app_name! You must follow this link to activate your account:
+
+@confirmation_url
+
+Have fun, and don't hesitate to contact us with your feedback.
+
+The @app_name team
+
