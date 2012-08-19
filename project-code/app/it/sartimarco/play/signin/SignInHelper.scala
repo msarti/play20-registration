@@ -41,9 +41,10 @@ import play.api.mvc.PlainResult
 import scala.util.Random
 import play.api.mvc.Call
 import play.api.Logger
+import java.util.Calendar
 
-trait SignInHelper[U, K] {
-  self: Controller with SignInConfig[U, K] =>
+trait SignInHelper {
+  self: Controller with SignInConfig =>
 
   private val random = new Random(new SecureRandom())
 
@@ -53,13 +54,13 @@ trait SignInHelper[U, K] {
     if (findActivationKey(email, key).isDefined) generateKey(email) else key
   }
 
-  def generateVerificationUrl[A](email: String, key: String)(implicit request: Request[A]): String = {
-    mailVerificationUrl(email, key).absoluteURL(false)
+  def generateValidationUrl[A](email: String, key: String)(implicit request: Request[A]): String = {
+    onValidationRequest(email, key).absoluteURL(false)
   }
 
-  def sendVerificationMail[A](email: String, key: String)(implicit request: Request[A]): Unit = {
+  def sendValidationMail[A](email: String, key: String)(implicit request: Request[A]): Unit = {
     val mail = use[MailerPlugin].email
-    val confirmationUrl = generateVerificationUrl(email, key)
+    val confirmationUrl = generateValidationUrl(email, key)
     val mailFrom = current.configuration.getString("signin.mail.from").orElse(Some("nouser@nodomain.it"))
     val mailSubject = current.configuration.getString("signin.mail.subject").orElse(Some("Play! 2.0 sign-up"))
     val applicationName = current.configuration.getString("signin.application.name").orElse(Some("Play! Project"))
@@ -84,33 +85,40 @@ trait SignInHelper[U, K] {
       "password_confirm" -> text).verifying(Messages("error.passwordDontMatch"), t => t._3 == t._4))
 
 
-  def signInPage[A](implicit request: Request[A]): PlainResult = {
+  def signInPage = Action { implicit request =>
     Ok(signInForm(registerForm))
   }
-
-  def signInAction[A](implicit request: Request[A]): PlainResult = {
+  
+  def doSignIn = Action { implicit request =>
     registerForm.bindFromRequest.fold(
       formWithErrors => BadRequest(signInForm(formWithErrors)),
       result => {
 	    val key = generateKey(result._1)
-	    val new_key = createActivationKey(result._1, key)
+	    
+	    val expires_in = current.configuration.getInt("signin.activation_key.expires_in").orElse(Some(60))
+	    val now = Calendar.getInstance
+	    now.add(Calendar.MINUTE, expires_in.get)
+	    val new_key = createActivationKey(result._1, key, now.getTime)
 	    val new_account = createDisabledAccount(result._1, result._2, result._3)
-	    sendVerificationMail(result._1, key)
-	    Redirect(signInResultPage).flashing(("success", Messages("signin.emailVerificationSent")))
+	    sendValidationMail(result._1, key)
+	    onSignInResult(result._1, true).flashing(("success", Messages("signin.emailVerificationSent")))
       })
   }
 
-  def mailVerificationAction[A](email: String, key: String)(implicit request: Request[A]): PlainResult = {
+  
+  def validate(email: String, key: String) = Action { implicit request =>
     val activation_key = consumeActivationKey(email, key)
     activation_key match {
-      case None => Redirect(signInResultPage).flashing((("error", "signin.emailVerificationFailed")))
+      case None => onValidationResult(email, false).flashing((("error", "signin.emailVerificationFailed")))
       case _ =>
         val account = enableAccount(email)
         account match {
-          case None => Redirect(signInResultPage).flashing((("error", "signin.emailVerificationFailed")))
-          case _ => Redirect(signInResultPage).flashing(("success", Messages("signin.emailVerificationSuccess")))
+          case None => onValidationResult(email, false).flashing((("error", "signin.emailVerificationFailed")))
+          case _ => onValidationResult(email, true).flashing(("success", Messages("signin.emailVerificationSuccess")))
         }
     }
   }
+  
+
 
 }

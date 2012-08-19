@@ -1,0 +1,16 @@
+@(message: String)(implicit flash: Flash)
+@import play.api.i18n.Messages
+
+@main(title = Messages("registration.title")) {
+
+    @flash.get("success").map { message =>
+      <p class="success">
+        @message
+      </p>
+    }
+    @flash.get("error").map { message =>
+      <p class="error">
+        @message
+      </p>
+    }
+}

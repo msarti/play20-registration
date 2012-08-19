@@ -11,19 +11,23 @@ import play.api.mvc.Flash
 import play.api.templates.Html
 import play.api.mvc.Call
 
-trait SignInConfig[U, K] {
+trait SignInConfig {
+  
+  type AccountType
+  type ActivationKeyType
 
   def signInForm(form: Form[(String, Option[String], String, String)])(implicit flash: Flash): Html
-  def signInResultPage : Call
-  def mailVerificationUrl(email: String, key: String) : Call
+  def onSignInResult(email: String, ok: Boolean) : PlainResult
+  def onValidationResult(email: String, ok: Boolean) : PlainResult
+  def onValidationRequest(email: String, key: String) : Call
 
-  def findAccountByEmail(email: String) : Option[U]
-  def createDisabledAccount(email: String, name: Option[String], password: String) : Option[U]
-  def enableAccount(email: String): Option[U]
+  def findAccountByEmail(email: String) : Option[AccountType]
+  def createDisabledAccount(email: String, name: Option[String], password: String) : Option[AccountType]
+  def enableAccount(email: String): Option[AccountType]
 
-  def createActivationKey(email: String, key: String): Option[K]
-  def findActivationKey(email: String, key: String): Option[K]
-  def consumeActivationKey(email: String, key: String): Option[K]
+  def createActivationKey(email: String, key: String, expires_on: Date): Option[ActivationKeyType]
+  def findActivationKey(email: String, key: String): Option[ActivationKeyType]
+  def consumeActivationKey(email: String, key: String): Option[ActivationKeyType]
 
 
 

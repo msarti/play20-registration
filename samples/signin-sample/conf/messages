@@ -1,0 +1,6 @@
+signin.title=Sample sign-in application
+signin.label.email=Email
+signin.label.name=Name
+signin.label.password=Password
+signin.label.password_confirm=Confirm password
+signin.label.submit=Submit

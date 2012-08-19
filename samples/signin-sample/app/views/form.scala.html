@@ -1,0 +1,29 @@
+@(form: Form[(String, Option[String], String, String)])(implicit flash: Flash)
+@import play.api.i18n.Messages
+
+@main(title = Messages("signin.title")) {
+
+  @helper.form(routes.SignInController.doSignIn) {
+
+    <h1>@Messages("signin.title")</h1>
+
+    @form.globalError.map { error =>
+      <p class="error">
+        @error.message
+      </p>
+    }
+
+    @flash.get("success").map { message =>
+      <p class="success">
+        @message
+      </p>
+    }
+
+      @helper.inputText(form("email"), 'id -> "email", 'size -> 30, 'placeholder -> "Email", '_label -> Messages("signin.label.email"))
+      @helper.inputText(form("name"), 'id -> "name", 'size -> 30, '_label -> Messages("signin.label.name"))
+      @helper.inputPassword(form("password"), 'id -> "password", 'size -> 30, '_label -> Messages("signin.label.password"))
+      @helper.inputPassword(form("password_confirm"), 'id -> "password_confirm", 'size -> 30, '_label -> Messages("signin.label.password_confirm"))
+      <button type="submit">@Messages("signin.label.submit")</button>
+
+  }
+}
