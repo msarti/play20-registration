@@ -16,7 +16,7 @@ trait SignInConfig {
   type AccountType
   type ActivationKeyType
 
-  def signInForm(form: Form[(String, Option[String], String, String)])(implicit flash: Flash): Html
+  def signInForm(form: Form[(String, Option[String], String, String, Boolean)])(implicit flash: Flash): Html
   def onSignInResult(email: String, ok: Boolean) : PlainResult
   def onValidationResult(email: String, ok: Boolean) : PlainResult
   def onValidationRequest(email: String, key: String) : Call

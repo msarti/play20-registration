@@ -32,6 +32,8 @@ import play.api.data.Forms.email
 import play.api.data.Forms.optional
 import play.api.data.Forms.text
 import play.api.data.Forms.tuple
+import play.api.data.Forms.checked
+
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.Controller
@@ -82,7 +84,8 @@ trait SignInHelper {
       "email" -> email.verifying(Messages("error.mailAlreadyPresent"), m => findAccountByEmail(m.toLowerCase).isEmpty),
       "name" -> optional(text),
       "password" -> text,
-      "password_confirm" -> text).verifying(Messages("error.passwordDontMatch"), t => t._3 == t._4))
+      "password_confirm" -> text,
+      "accept" -> checked(Messages("error.acceptConditions"))).verifying(Messages("error.passwordDontMatch"), t => t._3 == t._4))
 
 
   def signInPage = Action { implicit request =>

@@ -18,7 +18,7 @@ trait SignInConfigImpl extends SignInConfig {
   type ActivationKeyType = ActivationKey
   
   
-  def signInForm(form: Form[(String, Option[String], String, String)])(implicit flash: Flash): Html = views.html.form(form)
+  def signInForm(form: Form[(String, Option[String], String, String, Boolean)])(implicit flash: Flash): Html = views.html.form(form)
   def onValidationResult(email: String, ok: Boolean): PlainResult = Redirect(routes.SignInController.showResult)
   def onSignInResult(email: String, ok: Boolean): PlainResult = Redirect(routes.SignInController.showResult)
   def onValidationRequest(email: String, key: String): Call  = routes.SignInController.validate(email, key)
